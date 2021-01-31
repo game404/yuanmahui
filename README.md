@@ -1,13 +1,13 @@
 # yuanmahui
 
-每周阅读一个项目源码。
+源码会: 每周阅读一个项目源码，文章在：[https://game404.github.io/](https://game404.github.io/)
 
 * python
-	1. redis
-	2. requests
-	3. bottle
-	4. http-server
-	5. wsgiref
+	- redis
+	- requests
+	- bottle
+	- http-server
+	- wsgiref
 * golang 
 
 
@@ -15,7 +15,7 @@
 
 ```
 cd python/ch1-redis
-python test_sample.p
+python test_sample.py
 ```
 
 ## 使用pytest
