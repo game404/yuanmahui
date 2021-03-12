@@ -1,0 +1,33 @@
+from mako import runtime, filters, cache
+UNDEFINED = runtime.UNDEFINED
+STOP_RENDERING = runtime.STOP_RENDERING
+__M_dict_builtin = dict
+__M_locals_builtin = locals
+_magic_number = 10
+_modified_time = 1615385051.364234
+_enable_loop = True
+_template_filename = None
+_template_uri = 'a'
+_source_encoding = None
+_exports = []
+
+
+def render_body(context,**pageargs):
+    __M_caller = context.caller_stack._push_frame()
+    try:
+        __M_locals = __M_dict_builtin(pageargs=pageargs)
+        name = context.get('name', UNDEFINED)
+        __M_writer = context.writer()
+        __M_writer('hello, ')
+        __M_writer(name)
+        __M_writer('!')
+        return ''
+    finally:
+        context.caller_stack._pop_frame()
+
+
+"""
+__M_BEGIN_METADATA
+{"filename": null, "uri": "a", "source_encoding": null, "line_map": {"15": 0, "21": 1, "22": 1, "23": 1, "29": 23}}
+__M_END_METADATA
+"""
