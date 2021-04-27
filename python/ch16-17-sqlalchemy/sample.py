@@ -46,21 +46,67 @@ def test_create_engine():
 
 def test_sql():
     from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///:memory:', echo=True)
     from sqlalchemy import MetaData
-    metadata = MetaData()
     from sqlalchemy import Table
     from sqlalchemy import Column
     from sqlalchemy import Integer
     from sqlalchemy import String
+    from sqlalchemy import select
+
+    engine = create_engine('sqlite:///:memory:', echo=True)
+
+    metadata = MetaData()
     users = Table('users', metadata,
                   Column('id', Integer, primary_key=True),
                   Column('name', String),
                   Column('fullname', String),
                   )
     metadata.create_all(engine)
-    ins = users.insert()
+    print("=" * 10)
+    ins = users.insert().values(name='jack', fullname='Jack Jones')
     print(ins)
+    result = engine.execute(ins)
+    print(result, result.inserted_primary_key)
+    s = select([users])
+    result = engine.execute(s)
+    for row in result:
+        print(row)
+    result = engine.execute("select * from users")
+    for row in result:
+        print(row)
+
+
+def test_orm():
+    from sqlalchemy import create_engine
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy import Column, Integer, String
+    from sqlalchemy.orm import sessionmaker
+
+    engine = create_engine('sqlite:///:memory:', echo=True)
+    Base = declarative_base()
+
+    class User(Base):
+        __tablename__ = 'users'
+
+        id = Column(Integer, primary_key=True)
+        name = Column(String)
+        fullname = Column(String)
+        nickname = Column(String)
+
+        def __repr__(self):
+            return "<User(name='%s', fullname='%s', nickname='%s')>" % (
+                self.name, self.fullname, self.nickname)
+
+    Base.metadata.create_all(engine)
+    ed_user = User(name='ed', fullname='Ed Jones', nickname='edsnickname')
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    session.add(ed_user)
+    session.commit()
+    print(ed_user.id)
+    result = engine.execute("select * from users")
+    for row in result:
+        print(row)
 
 
 if __name__ == "__main__":
