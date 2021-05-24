@@ -57,3 +57,12 @@ Options:
 ```
 pyreverse argparse -o png
 ```
+
+```
+dot -Tpng classes.dot -o c.png
+```
+
+```
+pyreverse -k -m y  ./   
+# package.dot
+```
