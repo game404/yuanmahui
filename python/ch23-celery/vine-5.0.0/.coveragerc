@@ -1,0 +1,12 @@
+[run]
+branch = 1
+cover_pylib = 0
+include=*vine/*
+omit = vine.tests.*
+
+[report]
+omit =
+    */python?.?/*
+    */site-packages/*
+    */pypy/*
+    *vine/five.py

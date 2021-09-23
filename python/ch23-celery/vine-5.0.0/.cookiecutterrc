@@ -1,0 +1,10 @@
+default_context:
+
+    email:                     'ask@celeryproject.org'
+    full_name:                 'Ask Solem'
+    github_username:           'celery'
+    project_name:              'vine'
+    project_short_description: 'Promises, promises, promises.'
+    project_slug:              'vine'
+    version:                   '1.0.0'
+    year:                      '2016'
