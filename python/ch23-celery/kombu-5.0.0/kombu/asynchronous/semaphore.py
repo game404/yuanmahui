@@ -7,6 +7,7 @@ __all__ = ('DummyLock', 'LaxBoundedSemaphore')
 
 class LaxBoundedSemaphore:
     """Asynchronous Bounded Semaphore.
+    异步有限信号量(因为执行release后才执行，所以是异步)
 
     Lax means that the value will stay within the specified
     range even if released more times than it was acquired.
@@ -32,7 +33,9 @@ class LaxBoundedSemaphore:
     """
 
     def __init__(self, value):
+        # 信号容量
         self.initial_value = self.value = value
+        # 使用双端队列
         self._waiting = deque()
         self._add_waiter = self._waiting.append
         self._pop_waiter = self._waiting.popleft
@@ -50,10 +53,13 @@ class LaxBoundedSemaphore:
         """
         value = self.value
         if value <= 0:
+            # 容量不够的时候先暂存执行函数，并不更改可用数量
             self._add_waiter((callback, partial_args, partial_kwargs))
             return False
         else:
+            # 可用数量-1
             self.value = max(value - 1, 0)
+            # 直接执行函数
             callback(*partial_args, **partial_kwargs)
             return True
 
@@ -67,8 +73,10 @@ class LaxBoundedSemaphore:
         try:
             waiter, args, kwargs = self._pop_waiter()
         except IndexError:
+            # 无缓存则只增加可用数量
             self.value = min(self.value + 1, self.initial_value)
         else:
+            # 有缓存则执行第一个缓存，可用数量不变还是小于0
             waiter(*args, **kwargs)
 
     def grow(self, n=1):

@@ -16,7 +16,7 @@ from kombu.serialization import (
     disable_insecure_serializers,
 )
 from kombu.utils.encoding import str_to_bytes
-
+# 测试数据准备
 # For content_encoding tests
 unicode_string = 'abcdé\u8463'
 unicode_string_as_utf8 = unicode_string.encode('utf-8')
@@ -82,6 +82,7 @@ class test_Serialization:
             registry.disable('application/testS')
             assert 'application/testS' in disabled
         finally:
+            # 清理测试用例的副作用
             disabled.clear()
 
     def test_enable(self):
@@ -96,7 +97,7 @@ class test_Serialization:
         disabled = registry._disabled_content_types
         try:
             registry.disable('testS')
-
+            # 加载不存在的序列化方法会报错
             with pytest.raises(SerializerNotInstalled):
                 loads('xxd', 'application/testS', 'utf-8', force=False)
 
@@ -141,6 +142,7 @@ class test_Serialization:
         assert dumps(latin_string)[-1] == latin_string_as_utf8
 
     def test_enable_insecure_serializers(self):
+        # 使用patch方式mock模块检查模块被低啊用的情况
         with patch('kombu.serialization.registry') as registry:
             enable_insecure_serializers()
             registry.assert_has_calls([

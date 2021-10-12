@@ -52,3 +52,10 @@ utf-8
 ```
 pytest test_sample.py::test_json_pretty_print
 ```
+
+
+## 致谢
+
+* jetbrains的开源license的支持
+
+![https://www.jetbrains.com/](./jetbrains-variant-4.png)

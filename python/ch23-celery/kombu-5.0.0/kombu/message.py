@@ -48,7 +48,7 @@ class Message:
     MessageStateError = MessageStateError
 
     errors = None
-
+    # PYPY不需要slots
     if not IS_PYPY:  # pragma: no cover
         __slots__ = (
             '_state', 'channel', 'delivery_tag',
@@ -71,6 +71,7 @@ class Message:
         self.headers = headers or {}
         self.properties = properties or {}
         self._decoded_cache = None
+        # 状态 RECEIVED， ACK， REJECTED和 REQUEUED
         self._state = 'RECEIVED'
         self.accept = accept
 
@@ -120,6 +121,7 @@ class Message:
             raise self.MessageStateError(
                 'Message already acknowledged with state: {0._state}'.format(
                     self))
+        # 回应ACK
         self.channel.basic_ack(self.delivery_tag, multiple=multiple)
         self._state = 'ACK'
 
@@ -153,6 +155,7 @@ class Message:
             raise self.MessageStateError(
                 'Message already acknowledged with state: {0._state}'.format(
                     self))
+        # 拒绝（抛弃消息）
         self.channel.basic_reject(self.delivery_tag, requeue=requeue)
         self._state = 'REJECTED'
 
@@ -174,6 +177,7 @@ class Message:
             raise self.MessageStateError(
                 'Message already acknowledged with state: {0._state}'.format(
                     self))
+        # 拒绝（退回消息）（实际上没看到在哪里退回消息）
         self.channel.basic_reject(self.delivery_tag, requeue=True)
         self._state = 'REQUEUED'
 

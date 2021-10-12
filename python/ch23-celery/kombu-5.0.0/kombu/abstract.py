@@ -26,8 +26,10 @@ class Object:
     attrs = ()
 
     def __init__(self, *args, **kwargs):
+        # attrs 在子类中定义
         for name, type_ in self.attrs:
             value = kwargs.get(name)
+            # 从字典参数给属性动态赋值
             if value is not None:
                 setattr(self, name, (type_ or _any)(value))
             else:

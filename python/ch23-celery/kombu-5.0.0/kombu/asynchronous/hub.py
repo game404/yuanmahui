@@ -51,6 +51,7 @@ def set_event_loop(loop):
 
 class Hub:
     """Event loop object.
+    事件循环
 
     Arguments:
         timer (kombu.asynchronous.Timer): Specify custom timer instance.
@@ -365,6 +366,7 @@ class Hub:
                     consolidate_callback(to_consolidate)
             else:
                 # no sockets yet, startup is probably not done.
+                # 无socket直接sleep 0.1 s
                 sleep(min(poll_timeout, 0.1))
             yield
 

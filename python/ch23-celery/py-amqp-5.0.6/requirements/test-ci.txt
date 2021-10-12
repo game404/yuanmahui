@@ -1,0 +1,4 @@
+pytest-cov
+codecov
+pytest-travis-fold
+pytest-xdist

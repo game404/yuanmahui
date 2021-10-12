@@ -22,7 +22,7 @@ except ImportError:  # pragma: no cover
 __all__ = ('Entry', 'Timer', 'to_timestamp')
 
 logger = get_logger(__name__)
-
+# 默认最大间隔2s
 DEFAULT_MAX_INTERVAL = 2
 EPOCH = datetime.utcfromtimestamp(0).replace(tzinfo=utc)
 IS_PYPY = hasattr(sys, 'pypy_version_info')
@@ -57,8 +57,10 @@ class Entry:
         self.fun = fun
         self.args = args or []
         self.kwargs = kwargs or {}
+        # TODO 自己引用自己
         self.tref = weakrefproxy(self)
         self._last_run = None
+        # 不太合理，应该使用_canceled
         self.canceled = False
 
     def __call__(self):
@@ -89,6 +91,7 @@ class Entry:
 
 class Timer:
     """Async timer implementation."""
+    """异步timer实现(只是逻辑上的)"""
 
     Entry = Entry
 
@@ -99,6 +102,7 @@ class Timer:
         self.on_error = on_error or self.on_error
         self._queue = []
 
+    # 上下文
     def __enter__(self):
         return self
 
@@ -106,14 +110,17 @@ class Timer:
         self.stop()
 
     def call_at(self, eta, fun, args=(), kwargs=None, priority=0):
+        """定点执行"""
         kwargs = {} if not kwargs else kwargs
         return self.enter_at(self.Entry(fun, args, kwargs), eta, priority)
 
     def call_after(self, secs, fun, args=(), kwargs=None, priority=0):
+        """延后执行"""
         kwargs = {} if not kwargs else kwargs
         return self.enter_after(secs, self.Entry(fun, args, kwargs), priority)
 
     def call_repeatedly(self, secs, fun, args=(), kwargs=None, priority=0):
+        """重复执行"""
         kwargs = {} if not kwargs else kwargs
         tref = self.Entry(fun, args, kwargs)
 
@@ -158,11 +165,13 @@ class Timer:
         return self.enter_at(entry, time() + secs, priority)
 
     def _enter(self, eta, priority, entry, push=heapq.heappush):
+        # 加入优先级堆
         push(self._queue, scheduled(eta, priority, entry))
         return entry
 
     def apply_entry(self, entry):
         try:
+            # 执行定时函数
             entry()
         except Exception as exc:
             if not self.handle_error(exc):
@@ -186,23 +195,27 @@ class Timer:
         """
         max_interval = self.max_interval
         queue = self._queue
-
+        # 死循环
         while 1:
             if queue:
+                # 堆顶元素，最近的代办
                 eventA = queue[0]
                 now, eta = nowfun(), eventA[0]
-
                 if now < eta:
+                    # 未到时间， 等待间隔或者最大间隔之间的小值
                     yield min(eta - now, max_interval), None
                 else:
                     eventB = pop(queue)
 
                     if eventB is eventA:
+                        # 确认是代办
                         entry = eventA[2]
                         if not entry.canceled:
+                            # 返回entry以供执行
                             yield None, entry
                         continue
                     else:
+                        # 放回堆
                         push(queue, eventB)
             else:
                 yield None, None

@@ -13,6 +13,7 @@ class MatcherNotInstalled(Exception):
 
 class MatcherRegistry:
     """Pattern matching function registry."""
+    """匹配器的注册中心"""
 
     MatcherNotInstalled = MatcherNotInstalled
     matcher_pattern_first = ["pcre", ]
@@ -57,7 +58,9 @@ class MatcherRegistry:
             raise self.MatcherNotInstalled(
                 f'No matcher installed for {matcher}'
             )
+        # 默认使用通配符匹配
         match_func = self._matchers[matcher or 'glob']
+        # 通配符和正则匹配的传参先后顺序有差异
         if matcher in self.matcher_pattern_first:
             first_arg = bytes_to_str(pattern)
             second_arg = bytes_to_str(data)
@@ -113,11 +116,13 @@ unregister = registry.unregister
 
 def register_glob():
     """Register glob into default registry."""
+    """使用glob(通配符)匹配"""
     registry.register('glob', fnmatch)
 
 
 def register_pcre():
     """Register pcre into default registry."""
+    """使用正则匹配"""
     registry.register('pcre', rematch)
 
 

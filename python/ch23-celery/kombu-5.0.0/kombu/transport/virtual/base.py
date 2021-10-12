@@ -109,6 +109,7 @@ class BrokerState:
     def __init__(self, exchanges=None):
         self.exchanges = {} if exchanges is None else exchanges
         self.bindings = {}
+        # 字典，value为set
         self.queue_index = defaultdict(set)
 
     def clear(self):
@@ -117,9 +118,11 @@ class BrokerState:
         self.queue_index.clear()
 
     def has_binding(self, queue, exchange, routing_key):
+        # 一个元祖构成的key（binding_key_t）
         return (queue, exchange, routing_key) in self.bindings
 
     def binding_declare(self, queue, exchange, routing_key, arguments):
+        # 申明绑定
         key = binding_key_t(queue, exchange, routing_key)
         self.bindings.setdefault(key, arguments)
         self.queue_index[queue].add(key)
@@ -177,7 +180,7 @@ class QoS:
     def __init__(self, channel, prefetch_count=0):
         self.channel = channel
         self.prefetch_count = prefetch_count or 0
-
+        # 缓冲
         self._delivered = OrderedDict()
         self._delivered.restored = False
         self._dirty = set()
@@ -308,6 +311,7 @@ class Message(base.Message):
     """Message object."""
 
     def __init__(self, payload, channel=None, **kwargs):
+        # 重载构造函数
         self._raw = payload
         properties = payload['properties']
         body = payload.get('body')
@@ -410,10 +414,10 @@ class Channel(AbstractChannel, base.StdChannel):
         connection (ConnectionT): The transport instance this
             channel is part of.
     """
-
+    # 消息工厂
     #: message class used.
     Message = Message
-
+    # 流量控制
     #: QoS class used.
     QoS = QoS
 
@@ -737,6 +741,7 @@ class Channel(AbstractChannel, base.StdChannel):
     def drain_events(self, timeout=None, callback=None):
         callback = callback or self.connection._deliver
         if self._consumers and self.qos.can_consume():
+            # TODO _get_many 的 timeout
             if hasattr(self, '_get_many'):
                 return self._get_many(self._active_queues, timeout=timeout)
             return self._poll(self.cycle, callback, timeout=timeout)
@@ -917,6 +922,7 @@ class Transport(base.Transport):
         try:
             return self._avail_channels.pop()
         except IndexError:
+            # 创建新的channel
             channel = self.Channel(connection)
             self.channels.append(channel)
             return channel
@@ -955,8 +961,10 @@ class Transport(base.Transport):
         polling_interval = self.polling_interval
         if timeout and polling_interval and polling_interval > timeout:
             polling_interval = timeout
+        # 阻塞式的读取
         while 1:
             try:
+                # TODO timeout是如何工作的
                 get(self._deliver, timeout=timeout)
             except Empty:
                 if timeout is not None and monotonic() - time_start >= timeout:

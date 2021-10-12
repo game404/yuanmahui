@@ -169,6 +169,7 @@ class Connection:
             hostname = alt[0]
             params.update(hostname=hostname)
         if hostname:
+            # 解析db-url
             if ';' in hostname:
                 alt = hostname.split(';') + alt
                 hostname = alt[0]

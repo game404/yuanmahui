@@ -11,7 +11,8 @@ from kombu import Connection, Producer, Exchange, Queue
 #: By default messages sent to exchanges are persistent (delivery_mode=2),
 #: and queues and exchanges are durable.
 exchange = Exchange('kombu_demo', type='direct')
-queue = Queue('kombu_demo', exchange, routing_key='kombu_demo')
+# 生产者不用关心queue
+# queue = Queue('kombu_demo', exchange, routing_key='kombu_demo')
 
 
 with Connection('amqp://guest:guest@localhost:5672//') as connection:
@@ -25,6 +26,7 @@ with Connection('amqp://guest:guest@localhost:5672//') as connection:
     #: Publish the message using the json serializer (which is the default),
     #: and zlib compression.  The kombu consumer will automatically detect
     #: encoding, serialization and compression used and decode accordingly.
+    # 消息需要使用exchange
     producer.publish({'hello': 'world'},
                      exchange=exchange,
                      routing_key='kombu_demo',

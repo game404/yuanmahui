@@ -62,6 +62,7 @@ class timetuple(tuple):
 
 class LamportClock:
     """Lamport's logical clock.
+    兰波特时间戳算法
 
     From Wikipedia:
 

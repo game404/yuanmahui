@@ -15,6 +15,7 @@ def handle_message(body, message):
     message.ack()
 
 
+# 基于内存的传输连接，可以用于单元测试等
 connection = Connection("memory:///")
 consumer = Consumer(connection, task_queues, callbacks=[handle_message])
 

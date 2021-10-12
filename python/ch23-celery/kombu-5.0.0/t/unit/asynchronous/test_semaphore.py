@@ -6,6 +6,7 @@ class test_LaxBoundedSemaphore:
     def test_over_release(self):
         x = LaxBoundedSemaphore(2)
         calls = []
+        # 只能够执行2次append
         for i in range(1, 21):
             x.acquire(calls.append, i)
         x.release()
@@ -13,6 +14,7 @@ class test_LaxBoundedSemaphore:
         x.release()
         x.acquire(calls.append, 'y')
 
+        # TODO 这个语法没有看明白
         assert calls, [1, 2, 3 == 4]
 
         for i in range(30):
@@ -37,5 +39,6 @@ class test_LaxBoundedSemaphore:
         assert x.value == 1
         x.release()
         assert x.value == 2
+        # 可以多次释放
         x.release()
         assert x.value == 2

@@ -2,6 +2,8 @@
 
 Implementations of the standard exchanges defined
 by the AMQ protocol  (excluding the `headers` exchange).
+
+三种策略：直接投递，主题投递和扇出(广播)投递
 """
 
 import re
@@ -58,12 +60,14 @@ class DirectExchange(ExchangeType):
     type = 'direct'
 
     def lookup(self, table, exchange, routing_key, default):
+        """key相同，返回目标集合"""
         return {
             queue for rkey, _, queue in table
             if rkey == routing_key
         }
 
     def deliver(self, message, exchange, routing_key, **kwargs):
+        # channel的代理
         _lookup = self.channel._lookup
         _put = self.channel._put
         for queue in _lookup(exchange, routing_key):
@@ -88,6 +92,7 @@ class TopicExchange(ExchangeType):
     _compiled = {}
 
     def lookup(self, table, exchange, routing_key, default):
+        # 正则匹配
         return {
             queue for rkey, pattern, queue in table
             if self._match(pattern, routing_key)
@@ -142,6 +147,7 @@ class FanoutExchange(ExchangeType):
     type = 'fanout'
 
     def lookup(self, table, exchange, routing_key, default):
+        # 全部否符合
         return {queue for _, _, queue in table}
 
     def deliver(self, message, exchange, routing_key, **kwargs):

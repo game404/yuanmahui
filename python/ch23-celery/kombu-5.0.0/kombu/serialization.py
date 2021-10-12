@@ -4,6 +4,7 @@ import codecs
 import os
 import sys
 
+# 临时使用别名，方便择优后返回默认名
 import pickle as pypickle
 try:
     import cPickle as cpickle
@@ -32,6 +33,7 @@ if sys.platform.startswith('java'):  # pragma: no cover
 else:
     _decode = codecs.decode
 
+# 优先使用cPickle
 pickle = cpickle or pypickle
 pickle_load = pickle.load
 
@@ -64,6 +66,7 @@ def parenthesize_alias(first, second):
 
 class SerializerRegistry:
     """The registry keeps track of serialization methods."""
+    """序列化方法的注册中心"""
 
     def __init__(self):
         self._encoders = {}
@@ -71,7 +74,9 @@ class SerializerRegistry:
         self._default_encode = None
         self._default_content_type = None
         self._default_content_encoding = None
+        # 记录禁用的编解码类型
         self._disabled_content_types = set()
+        # 双向字典，可以进行互查
         self.type_to_name = {}
         self.name_to_type = {}
 
@@ -99,7 +104,9 @@ class SerializerRegistry:
                 the `decoder` method will be returning. Will usually be
                 `utf-8`, `us-ascii`, or `binary`.
         """
+        """注册编/解码方法"""
         if encoder:
+            # encoder使用命名元祖codec包装了一下
             self._encoders[name] = codec(
                 content_type, content_encoding, encoder,
             )
@@ -128,6 +135,7 @@ class SerializerRegistry:
             SerializerNotInstalled: If a serializer by that name
                 cannot be found.
         """
+        """取消注册"""
         try:
             content_type = self.name_to_type[name]
             self._decoders.pop(content_type, None)
@@ -276,6 +284,7 @@ class SerializerRegistry:
 
 
 #: Global registry of serializers/deserializers.
+# 全局单例，并且导出函数绑定，使用API更简介
 registry = SerializerRegistry()
 dumps = registry.dumps
 loads = registry.loads
@@ -290,8 +299,10 @@ def raw_encode(data):
     if isinstance(payload, str):
         content_encoding = 'utf-8'
         with _reraise_errors(EncodeError, exclude=()):
+            # 字符转换成bytes
             payload = payload.encode(content_encoding)
     else:
+        # 已经是bytes，直接返回
         content_encoding = 'binary'
     return content_type, content_encoding, payload
 
@@ -389,12 +400,14 @@ def register_msgpack():
 
 
 # Register the base serialization methods.
+# 支持JSON，pickle，yaml和msgpack四种序列化方法
 register_json()
 register_pickle()
 register_yaml()
 register_msgpack()
 
 # Default serializer is 'json'
+# 内部初始化，默认使用json序列化方法
 registry._set_default_serializer('json')
 
 

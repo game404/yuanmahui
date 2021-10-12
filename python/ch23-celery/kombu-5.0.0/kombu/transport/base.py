@@ -76,10 +76,12 @@ class StdChannel:
     no_ack_consumers = None
 
     def Consumer(self, *args, **kwargs):
+        # 消费者
         from kombu.messaging import Consumer
         return Consumer(self, *args, **kwargs)
 
     def Producer(self, *args, **kwargs):
+        # 生产者
         from kombu.messaging import Producer
         return Producer(self, *args, **kwargs)
 

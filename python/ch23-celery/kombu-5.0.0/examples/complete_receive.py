@@ -11,6 +11,7 @@ from kombu import Connection, Exchange, Queue, Consumer, eventloop
 #: By default messages sent to exchanges are persistent (delivery_mode=2),
 #: and queues and exchanges are durable.
 exchange = Exchange('kombu_demo', type='direct')
+# 队列需要制定exchange
 queue = Queue('kombu_demo', exchange, routing_key='kombu_demo')
 
 
@@ -34,6 +35,7 @@ with Connection('amqp://guest:guest@localhost:5672//') as connection:
     #: Create consumer using our callback and queue.
     #: Second argument can also be a list to consume from
     #: any number of queues.
+    # 消费者监听队列
     with Consumer(connection, queue, callbacks=[handle_message]):
 
         #: Each iteration waits for a single event.  Note that this

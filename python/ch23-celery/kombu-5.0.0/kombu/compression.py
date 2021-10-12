@@ -1,4 +1,5 @@
 """Compression utilities."""
+"""压缩工具，提供各种压缩算法的统一接口"""
 
 from kombu.utils.encoding import ensure_bytes
 

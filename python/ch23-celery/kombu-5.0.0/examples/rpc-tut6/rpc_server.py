@@ -29,10 +29,12 @@ class Worker(ConsumerProducerMixin):
         )]
 
     def on_request(self, message):
+        # 收到远程调用请求
         n = message.payload['n']
         print(f' [.] fib({n})')
+        # 业务计算
         result = fib(n)
-
+        # 响应请求(使用新的producer回应)
         self.producer.publish(
             {'result': result},
             exchange='', routing_key=message.properties['reply_to'],
@@ -40,6 +42,7 @@ class Worker(ConsumerProducerMixin):
             serializer='json',
             retry=True,
         )
+        # 注意别忘记ack
         message.ack()
 
 

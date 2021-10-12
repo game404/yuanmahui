@@ -1,0 +1,16 @@
+[run]
+branch = 1
+cover_pylib = 0
+include=*amqp/*
+omit = t.*
+
+[report]
+omit =
+    */python?.?/*
+    */site-packages/*
+    */pypy/*
+    *amqp/five.py
+exclude_lines =
+    pragma: no cover
+
+    for infinity

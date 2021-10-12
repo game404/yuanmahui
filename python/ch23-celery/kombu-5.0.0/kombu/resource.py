@@ -18,13 +18,16 @@ def _after_fork_cleanup_resource(resource):
 
 class LifoQueue(_LifoQueue):
     """Last in first out version of Queue."""
+    """后进先出的队列(栈)"""
 
     def _init(self, maxsize):
+        # 使用双端队列取代默认的列表
         self.queue = deque()
 
 
 class Resource:
     """Pool of resources."""
+    """资源池"""
 
     LimitExceeded = exceptions.LimitExceeded
 
@@ -54,6 +57,7 @@ class Resource:
         # All taken, put new on the queue and
         # try get again, this way the first in line
         # will get the resource.
+        # TODO self.new 未名
         self._resource.put_nowait(self.new())
 
     def acquire(self, block=False, timeout=None):
@@ -68,13 +72,16 @@ class Resource:
         Raises:
             LimitExceeded: if block is false and the limit has been exceeded.
         """
+        """申请资源"""
         if self._closed:
             raise RuntimeError('Acquire on closed pool')
         if self.limit:
+            # 循环直到获取到一个资源
             while 1:
                 try:
                     R = self._resource.get(block=block, timeout=timeout)
                 except Empty:
+                    # 池为空的时候增加一个
                     self._add_when_empty()
                 else:
                     try:
@@ -87,9 +94,11 @@ class Resource:
                             # evaluted so must try to release/close first.
                             self.release(R)
                         raise
+                    # 已经使用的资源标记为脏
                     self._dirty.add(R)
                     break
         else:
+            # 池无上限则直接获取
             R = self.prepare(self.new())
 
         def release():
@@ -101,14 +110,17 @@ class Resource:
                 be acquired if so needed.
             """
             self.release(R)
+        # 增加释放方法
         R.release = release
 
         return R
 
     def prepare(self, resource):
+        # 父类是直接返回，子类可以覆盖，进行更多的资源准备工作
         return resource
 
     def close_resource(self, resource):
+        # TODO close方法来自？
         resource.close()
 
     def release_resource(self, resource):
@@ -119,12 +131,14 @@ class Resource:
 
         This can be used in case of defective resources.
         """
+        """释放资源"""
         if self.limit:
             self._dirty.discard(resource)
         self.close_resource(resource)
 
     def release(self, resource):
         if self.limit:
+            # 移除脏标记
             self._dirty.discard(resource)
             self._resource.put_nowait(resource)
             self.release_resource(resource)
@@ -214,6 +228,7 @@ class Resource:
         _orig_release = release
 
         _next_resource_id = 0
+        # debug模式装饰一下原实现，增加打印信息
 
         def acquire(self, *args, **kwargs):  # noqa
             import traceback

@@ -2,7 +2,7 @@
 
 from kombu import Connection, Exchange, Queue, Producer, Consumer
 from kombu.asynchronous import Hub
-
+# 类似aio的事件循环
 hub = Hub()
 exchange = Exchange('asynt')
 queue = Queue('asynt', exchange, 'asynt')
@@ -16,6 +16,7 @@ def send_message(conn):
 
 def on_message(message):
     print(f'received: {message.body!r}')
+    # 回应ack
     message.ack()
     hub.stop()  # <-- exit after one message
 

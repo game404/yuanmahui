@@ -23,6 +23,7 @@ class Worker(ConsumerMixin):
         kwargs = body['kwargs']
         logger.info('Got task: %s', reprcall(fun.__name__, args, kwargs))
         try:
+            # 注意这个fun并未import，是直接从body中序列化出来，因为本地未import hello_task
             fun(*args, **kwargs)
         except Exception as exc:
             logger.error('task raised exception: %r', exc)

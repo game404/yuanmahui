@@ -161,6 +161,7 @@ class Exchange(MaybeChannelBound):
         return hash(f'E|{self.name}')
 
     def _can_declare(self):
+        # 允许申明，有名称并且名称合法(区分内部exchange的前缀)
         return not self.no_declare and (
             self.name and not self.name.startswith(
                 INTERNAL_EXCHANGE_PREFIX))
@@ -177,6 +178,7 @@ class Exchange(MaybeChannelBound):
         """
         if self._can_declare():
             passive = self.passive if passive is None else passive
+            # 依托于channel
             return (channel or self.channel).exchange_declare(
                 exchange=self.name, type=self.type, durable=self.durable,
                 auto_delete=self.auto_delete, arguments=self.arguments,
@@ -288,6 +290,7 @@ class Exchange(MaybeChannelBound):
                                             nowait=nowait)
 
     def binding(self, routing_key='', arguments=None, unbind_arguments=None):
+        # 构造binding对象
         return binding(self, routing_key, arguments, unbind_arguments)
 
     def __eq__(self, other):
