@@ -10,7 +10,7 @@ priority_to_routing_key = {
 
 
 def send_as_task(connection, fun, args=(), kwargs={}, priority='mid'):
-    # fun函数进过pickle后传递到远程进行执行
+    # fun函数经过pickle后传递到远程进行执行
     # TODO 复杂的task是否支持？
     payload = {'fun': fun, 'args': args, 'kwargs': kwargs}
     routing_key = priority_to_routing_key[priority]

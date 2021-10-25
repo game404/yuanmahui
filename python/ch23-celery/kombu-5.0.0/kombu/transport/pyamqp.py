@@ -38,6 +38,7 @@ class Channel(amqp.Channel, base.StdChannel):
                         content_type=None, content_encoding=None,
                         headers=None, properties=None, _Message=amqp.Message):
         """Prepare message so that it can be sent using this transport."""
+        # 这里准备的是amqp的消息
         return _Message(
             body,
             priority=priority,
@@ -57,12 +58,14 @@ class Channel(amqp.Channel, base.StdChannel):
 
 class Connection(amqp.Connection):
     """AMQP Connection."""
+    # 继承自amqp.Connection
 
     Channel = Channel
 
 
 class Transport(base.Transport):
     """AMQP Transport."""
+    # 因为Connection已经继承自amqp.Connection所以Transport只需要使用connection就好了
 
     Connection = Connection
 

@@ -178,7 +178,7 @@ class Exchange(MaybeChannelBound):
         """
         if self._can_declare():
             passive = self.passive if passive is None else passive
-            # 依托于channel
+            # 依托于channel， 申明exchange(在broker中创建exchange)
             return (channel or self.channel).exchange_declare(
                 exchange=self.name, type=self.type, durable=self.durable,
                 auto_delete=self.auto_delete, arguments=self.arguments,
@@ -196,6 +196,7 @@ class Exchange(MaybeChannelBound):
         """
         if isinstance(exchange, Exchange):
             exchange = exchange.name
+        # exchange之间进行绑定
         return (channel or self.channel).exchange_bind(
             destination=self.name,
             source=exchange,
@@ -338,6 +339,8 @@ class binding(Object):
 
     def __init__(self, exchange=None, routing_key='',
                  arguments=None, unbind_arguments=None):
+        # 记录了exchange信息的中介，可以让Queue避免直接依赖Exchange
+        # 在queue中可以直接使用exchange或者使用binding
         self.exchange = exchange
         self.routing_key = routing_key
         self.arguments = arguments

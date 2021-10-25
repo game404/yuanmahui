@@ -12,7 +12,7 @@ from kombu import Connection, Producer, Exchange, Queue
 #: and queues and exchanges are durable.
 exchange = Exchange('kombu_demo', type='direct')
 # 生产者不用关心queue
-# queue = Queue('kombu_demo', exchange, routing_key='kombu_demo')
+queue = Queue('kombu_demo', exchange, routing_key='kombu_demo')
 
 
 with Connection('amqp://guest:guest@localhost:5672//') as connection:

@@ -65,6 +65,7 @@ class Producer:
         self.compression = compression or self.compression
         self.on_return = on_return or self.on_return
         self._channel_promise = None
+        # 创建默认的exchange
         if self.exchange is None:
             self.exchange = Exchange('')
         if auto_declare is not None:
@@ -147,7 +148,7 @@ class Producer:
             **properties (Any): Additional message properties, see AMQP spec.
         """
         _publish = self._publish
-
+        # 准备参数
         declare = [] if declare is None else declare
         headers = {} if headers is None else headers
         retry_policy = {} if retry_policy is None else retry_policy
@@ -160,7 +161,7 @@ class Producer:
 
         if expiration is not None:
             properties['expiration'] = str(int(expiration * 1000))
-
+        # 准备body
         body, content_type, content_encoding = self._prepare(
             body, serializer, content_type, content_encoding,
             compression, headers)
@@ -172,6 +173,7 @@ class Producer:
 
         if retry:
             _publish = self.connection.ensure(self, _publish, **retry_policy)
+        # 发送
         return _publish(
             body, priority, content_type, content_encoding,
             headers, properties, routing_key, mandatory, immediate,
@@ -182,6 +184,7 @@ class Producer:
                  headers, properties, routing_key, mandatory,
                  immediate, exchange, declare):
         channel = self.channel
+        # 封装消息
         message = channel.prepare_message(
             body, priority, content_type,
             content_encoding, headers, properties,
@@ -194,6 +197,7 @@ class Producer:
         reply_to = properties.get('reply_to')
         if isinstance(reply_to, Queue):
             properties['reply_to'] = reply_to.name
+        # 执行发送消息
         return channel.basic_publish(
             message,
             exchange=exchange, routing_key=routing_key,
@@ -204,6 +208,7 @@ class Producer:
         channel = self._channel
         if isinstance(channel, ChannelPromise):
             channel = self._channel = channel()
+            # exchange
             self.exchange.revive(channel)
             if self.on_return:
                 channel.events['basic_return'].add(self.on_return)
@@ -211,6 +216,7 @@ class Producer:
 
     def _set_channel(self, channel):
         self._channel = channel
+    # channel的get/set
     channel = property(_get_channel, _set_channel)
 
     def revive(self, channel):
@@ -221,6 +227,7 @@ class Producer:
             channel = ChannelPromise(lambda: connection.default_channel)
         if isinstance(channel, ChannelPromise):
             self._channel = channel
+            # exchange
             self.exchange = self.exchange(channel)
         else:
             # Channel already concrete
@@ -364,10 +371,13 @@ class Consumer:
                  callbacks=None, on_decode_error=None, on_message=None,
                  accept=None, prefetch_count=None, tag_prefix=None):
         self.channel = channel
+        # Queue的列表
         self.queues = maybe_list(queues or [])
         self.no_ack = self.no_ack if no_ack is None else no_ack
+        # 消息的回调函数
         self.callbacks = (self.callbacks or [] if callbacks is None
                           else callbacks)
+        # 自定义的消息处理方法
         self.on_message = on_message
         self.tag_prefix = tag_prefix
         self._active_tags = {}
@@ -398,6 +408,7 @@ class Consumer:
             # name may have changed after declare
             self._queues.pop(qname, None)
             queue = self._queues[queue.name] = queue(self.channel)
+            # queue和channel绑定
             queue.revive(channel)
 
         if self.auto_declare:
@@ -470,6 +481,7 @@ class Consumer:
             H, T = queues[:-1], queues[-1]
             for queue in H:
                 self._basic_consume(queue, no_ack=no_ack, nowait=True)
+            # 最后的queue需要阻塞
             self._basic_consume(T, no_ack=no_ack, nowait=False)
 
     def cancel(self):
@@ -580,6 +592,7 @@ class Consumer:
             NotImplementedError: If no consumer callbacks have been
                 registered.
         """
+        # 执行callback
         callbacks = self.callbacks
         if not callbacks:
             raise NotImplementedError('Consumer does not have any callbacks')
@@ -590,6 +603,7 @@ class Consumer:
         tag = self._active_tags.get(queue.name)
         if tag is None:
             tag = self._add_tag(queue, consumer_tag)
+            # 消费消息
             queue.consume(tag, self._receive_callback,
                           no_ack=no_ack, nowait=nowait)
         return tag

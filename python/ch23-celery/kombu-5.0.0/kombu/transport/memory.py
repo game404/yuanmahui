@@ -9,6 +9,7 @@ from collections import defaultdict
 
 class Channel(virtual.Channel):
     """In-memory Channel."""
+    # 在内存中使用Queue模拟channel
 
     events = defaultdict(set)
     queues = {}

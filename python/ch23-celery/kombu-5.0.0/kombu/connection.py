@@ -255,11 +255,13 @@ class Connection:
         self.userid = userid
         self.password = password
         self.login_method = login_method
+        # 虚拟主机隔离
         self.virtual_host = virtual_host or self.virtual_host
         self.port = port or self.port
         self.insist = insist
         self.connect_timeout = connect_timeout
         self.ssl = ssl
+        # 传输类
         self.transport_cls = transport
         self.heartbeat = heartbeat and float(heartbeat)
 
@@ -605,6 +607,7 @@ class Connection:
         return self.ensure(revive, revive, **ensure_options)
 
     def create_transport(self):
+        # 创建传输连接
         return self.get_transport_cls()(client=self)
 
     def get_transport_cls(self):
@@ -1038,6 +1041,7 @@ def maybe_channel(channel):
     Return the default channel if argument is a connection instance,
     otherwise just return the channel given.
     """
+    # connection是种特色的channel
     if is_connection(channel):
         return channel.default_channel
     return channel

@@ -69,6 +69,7 @@ class MaybeChannelBound(Object):
 
     def bind(self, channel):
         """Create copy of the instance that is bound to a channel."""
+        # 执行类和channel的绑定(所有的对象也就可以安全使用channel)
         return copy(self).maybe_bind(channel)
 
     def maybe_bind(self, channel):
@@ -105,6 +106,7 @@ class MaybeChannelBound(Object):
     @property
     def is_bound(self):
         """Flag set if the channel is bound."""
+        # 有channel和channel已经完成
         return self._is_bound and self._channel is not None
 
     @property
@@ -116,5 +118,6 @@ class MaybeChannelBound(Object):
                 "Can't call method on {} not bound to a channel".format(
                     type(self).__name__))
         if isinstance(channel, ChannelPromise):
+            # 对于ChannelPromise进行执行，等于创建channel
             channel = self._channel = channel()
         return channel

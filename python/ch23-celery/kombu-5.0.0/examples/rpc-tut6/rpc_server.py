@@ -21,6 +21,7 @@ class Worker(ConsumerProducerMixin):
         self.connection = connection
 
     def get_consumers(self, Consumer, channel):
+        # 创建consumer接收请求
         return [Consumer(
             queues=[rpc_queue],
             on_message=self.on_request,
@@ -29,7 +30,7 @@ class Worker(ConsumerProducerMixin):
         )]
 
     def on_request(self, message):
-        # 收到远程调用请求
+        # 处理远程调用请求
         n = message.payload['n']
         print(f' [.] fib({n})')
         # 业务计算
@@ -37,7 +38,9 @@ class Worker(ConsumerProducerMixin):
         # 响应请求(使用新的producer回应)
         self.producer.publish(
             {'result': result},
+            # 读取来源地址，进行回应
             exchange='', routing_key=message.properties['reply_to'],
+            # 请求和响应关联
             correlation_id=message.properties['correlation_id'],
             serializer='json',
             retry=True,

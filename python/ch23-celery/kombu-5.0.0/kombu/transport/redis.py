@@ -1147,6 +1147,7 @@ class SentinelChannel(Channel):
 
 class SentinelTransport(Transport):
     """Redis Sentinel Transport."""
+    # 哨兵模式
 
     default_port = 26379
     Channel = SentinelChannel

@@ -42,7 +42,7 @@ if STATICA_HACK:  # pragma: no cover
     from kombu.messaging import Consumer, Producer              # noqa
     from kombu.pools import connections, producers              # noqa
     from kombu.utils.url import parse_url                       # noqa
-    from kombu.common import eventloop, uuid                    # noqa
+    from kombu.common import evexntloop, uuid                    # noqa
     from kombu.serialization import (                           # noqa
         enable_insecure_serializers,
         disable_insecure_serializers,

@@ -11,7 +11,7 @@ from kombu import Connection, Exchange, Queue, Consumer, eventloop
 #: By default messages sent to exchanges are persistent (delivery_mode=2),
 #: and queues and exchanges are durable.
 exchange = Exchange('kombu_demo', type='direct')
-# 队列需要制定exchange
+# 队列需要指定exchange
 queue = Queue('kombu_demo', exchange, routing_key='kombu_demo')
 
 

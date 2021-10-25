@@ -63,13 +63,16 @@ class Message:
                  accept=None, channel=None, **kwargs):
         delivery_info = {} if not delivery_info else delivery_info
         self.errors = [] if self.errors is None else self.errors
+        # 通道，主要的API来源
         self.channel = channel
+        # 投递标签,可以用来响应
         self.delivery_tag = delivery_tag
         self.content_type = content_type
         self.content_encoding = content_encoding
         self.delivery_info = delivery_info
         self.headers = headers or {}
         self.properties = properties or {}
+        # 反序列化表示
         self._decoded_cache = None
         # 状态 RECEIVED， ACK， REJECTED和 REQUEUED
         self._state = 'RECEIVED'
@@ -177,7 +180,7 @@ class Message:
             raise self.MessageStateError(
                 'Message already acknowledged with state: {0._state}'.format(
                     self))
-        # 拒绝（退回消息）（实际上没看到在哪里退回消息）
+        # 拒绝（退回消息）（和reject区别在requeue=True）
         self.channel.basic_reject(self.delivery_tag, requeue=True)
         self._state = 'REQUEUED'
 
@@ -191,6 +194,7 @@ class Message:
             re-evaluation.
         """
         if not self._decoded_cache:
+            # 反序列化一次
             self._decoded_cache = self._decode()
         return self._decoded_cache
 

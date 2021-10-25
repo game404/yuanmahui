@@ -16,6 +16,7 @@ def handle_message(body, message):
 
 
 # 基于内存的传输连接，可以用于单元测试等
+# producer和consumer需要在同一个进程
 connection = Connection("memory:///")
 consumer = Consumer(connection, task_queues, callbacks=[handle_message])
 

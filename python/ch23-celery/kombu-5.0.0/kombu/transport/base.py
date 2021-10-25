@@ -72,6 +72,7 @@ def _LeftBlank(obj, method):
 
 class StdChannel:
     """Standard channel base class."""
+    # channel模版
 
     no_ack_consumers = None
 
@@ -141,6 +142,7 @@ default_transport_capabilities = Implements(
 
 class Transport:
     """Base class for transports."""
+    # Transport模版，提供统一的约定
 
     Management = Management
 

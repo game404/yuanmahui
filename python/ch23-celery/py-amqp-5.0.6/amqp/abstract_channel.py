@@ -34,6 +34,7 @@ class AbstractChannel:
         connection.channels[channel_id] = self
         self.method_queue = []  # Higher level queue for methods
         self.auto_decode = False
+        # 存放等待回应的消息也就是pending状态
         self._pending = {}
         self._callbacks = {}
 
@@ -73,6 +74,7 @@ class AbstractChannel:
         raise NotImplementedError('Must be overriden in subclass')
 
     def wait(self, method, callback=None, timeout=None, returns_tuple=False):
+        # 等待消息的ack
         p = ensure_promise(callback)
         pending = self._pending
         prev_p = []
@@ -84,6 +86,7 @@ class AbstractChannel:
             pending[m] = p
 
         try:
+            # 收到消息回应
             while not p.ready:
                 self.connection.drain_events(timeout=timeout)
 
