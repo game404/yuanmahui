@@ -215,7 +215,7 @@ class Timer:
                             yield None, entry
                         continue
                     else:
-                        # 放回堆
+                        # 放回堆，继续下一个循环
                         push(queue, eventB)
             else:
                 yield None, None

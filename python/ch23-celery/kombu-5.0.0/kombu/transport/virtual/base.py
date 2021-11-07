@@ -218,6 +218,7 @@ class QoS:
         """Append message to transactional state."""
         if self._dirty:
             self._flush()
+        # 加入字典
         self._quick_append(delivery_tag, message)
 
     def get(self, delivery_tag):
@@ -225,6 +226,7 @@ class QoS:
 
     def _flush(self):
         """Flush dirty (acked/rejected) tags from."""
+        # 清空
         dirty = self._dirty
         delivered = self._delivered
         while 1:
@@ -606,6 +608,7 @@ class Channel(AbstractChannel, base.StdChannel):
                 message, exchange, routing_key, **kwargs
             )
         # anon exchange: routing_key is the destination queue
+        # 发送消息
         return self._put(routing_key, message, **kwargs)
 
     def _inplace_augment_message(self, message, exchange, routing_key):
@@ -964,12 +967,13 @@ class Transport(base.Transport):
         # 阻塞式的读取
         while 1:
             try:
-                # TODO timeout是如何工作的
+                # timeout是透传给_deliver函数的
                 get(self._deliver, timeout=timeout)
             except Empty:
                 if timeout is not None and monotonic() - time_start >= timeout:
                     raise socket.timeout()
                 if polling_interval is not None:
+                    # 休眠一个间隔
                     sleep(polling_interval)
             else:
                 break

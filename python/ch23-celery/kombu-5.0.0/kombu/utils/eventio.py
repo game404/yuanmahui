@@ -323,6 +323,7 @@ def _get_poller():
         return _select
 
 
+# selector的IO监听
 def poll(*args, **kwargs):
     """Create new poller instance."""
     return _get_poller()(*args, **kwargs)

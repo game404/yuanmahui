@@ -159,18 +159,21 @@ def memoize(maxsize=None, keyfun=None, Cache=LRUCache):
                     value = cache[key]
             except KeyError:
                 value = fun(*args, **kwargs)
+                # 未命中需要执行函数
                 _M.misses += 1
                 with mutex:
                     cache[key] = value
             else:
+                # 命中率增加
                 _M.hits += 1
             return value
 
         def clear():
             """Clear the cache and reset cache statistics."""
+            # 清理缓存及统计
             cache.clear()
             _M.hits = _M.misses = 0
-
+        # 统计信息
         _M.hits = _M.misses = 0
         _M.clear = clear
         _M.original_func = fun
@@ -319,6 +322,7 @@ def retry_over_time(fun, catch, args=None, kwargs=None, errback=None,
     interval_range = fxrange(interval_start,
                              interval_max + interval_start,
                              interval_step, repeatlast=True)
+    # 超时时间
     end = time() + timeout if timeout else None
     for retries in count():
         try:
@@ -336,6 +340,7 @@ def retry_over_time(fun, catch, args=None, kwargs=None, errback=None,
                 for _ in range(int(tts)):
                     if callback:
                         callback()
+                    # 休眠
                     sleep(1.0)
                 # sleep remainder after int truncation above.
                 sleep(abs(int(tts) - tts))

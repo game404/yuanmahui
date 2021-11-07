@@ -35,7 +35,7 @@ class LaxBoundedSemaphore:
     def __init__(self, value):
         # 信号容量
         self.initial_value = self.value = value
-        # 使用双端队列
+        # 使用双端队列，FIFO
         self._waiting = deque()
         self._add_waiter = self._waiting.append
         self._pop_waiter = self._waiting.popleft

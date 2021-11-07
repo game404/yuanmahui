@@ -213,7 +213,7 @@ class Transport:
     def _make_reader(self, connection, timeout=socket.timeout,
                      error=socket.error, _unavail=(errno.EAGAIN, errno.EINTR)):
         drain_events = connection.drain_events
-
+        # 循环读取数据
         def _read(loop):
             if not connection.connected:
                 raise RecoverableConnectionError('Socket was disconnected')
@@ -225,6 +225,7 @@ class Transport:
                 if exc.errno in _unavail:
                     return
                 raise
+            # 递归
             loop.call_soon(_read, loop)
 
         return _read

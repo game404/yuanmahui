@@ -26,7 +26,7 @@ from ..log import get_logger
 safequote = partial(quote, safe='')
 logger = get_logger(__name__)
 
-
+# url解析类，协议，主机，端口，用户名，密码，路径和参数
 urlparts = NamedTuple('urlparts', [
     ('scheme', str),
     ('hostname', str),
@@ -36,6 +36,7 @@ urlparts = NamedTuple('urlparts', [
     ('path', str),
     ('query', Mapping),
 ])
+
 
 
 def parse_url(url):

@@ -12,6 +12,7 @@ class Channel(virtual.Channel):
     # 在内存中使用Queue模拟channel
 
     events = defaultdict(set)
+    # queue字典
     queues = {}
     do_restore = False
     supports_fanout = True
@@ -24,10 +25,12 @@ class Channel(virtual.Channel):
             self.queues[queue] = Queue()
 
     def _get(self, queue, timeout=None):
+        # 获取消息
         return self._queue_for(queue).get(block=False)
 
     def _queue_for(self, queue):
         if queue not in self.queues:
+            # 使用Queue模拟broker
             self.queues[queue] = Queue()
         return self.queues[queue]
 
@@ -36,9 +39,11 @@ class Channel(virtual.Channel):
 
     def _put_fanout(self, exchange, message, routing_key=None, **kwargs):
         for queue in self._lookup(exchange, routing_key):
+            # 给满足routing_key的queue添加消息
             self._queue_for(queue).put(message)
 
     def _put(self, queue, message, **kwargs):
+        # 添加消息
         self._queue_for(queue).put(message)
 
     def _size(self, queue):

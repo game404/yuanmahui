@@ -126,6 +126,7 @@ class Transport(base.Transport):
             'connect_timeout': conninfo.connect_timeout,
             'heartbeat': conninfo.heartbeat,
         }, **conninfo.transport_options or {})
+        # 创建AMQP连接
         conn = self.Connection(**opts)
         conn.client = self.client
         conn.connect()

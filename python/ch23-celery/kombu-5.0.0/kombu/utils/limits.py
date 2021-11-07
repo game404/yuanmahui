@@ -8,6 +8,7 @@ __all__ = ('TokenBucket',)
 
 class TokenBucket:
     """Token Bucket Algorithm.
+    令牌桶算法
 
     See Also:
         https://en.wikipedia.org/wiki/Token_Bucket
@@ -31,16 +32,21 @@ class TokenBucket:
     timestamp = None
 
     def __init__(self, fill_rate, capacity=1):
+        # 容量上限
         self.capacity = float(capacity)
+        # 剩余令牌数，初始等于容量上限
         self._tokens = capacity
+        # 填充率
         self.fill_rate = float(fill_rate)
         self.timestamp = monotonic()
+        # 数据容器
         self.contents = deque()
 
     def add(self, item):
         self.contents.append(item)
 
     def pop(self):
+        # 先进先出
         return self.contents.popleft()
 
     def clear_pending(self):
@@ -58,6 +64,7 @@ class TokenBucket:
                 of tokens.
         """
         if tokens <= self._get_tokens():
+            # 消费n个令牌
             self._tokens -= tokens
             return True
         return False
@@ -74,8 +81,11 @@ class TokenBucket:
 
     def _get_tokens(self):
         if self._tokens < self.capacity:
+            # 记录当前时间
             now = monotonic()
+            # 计算已经流失的令牌数量
             delta = self.fill_rate * (now - self.timestamp)
+            # 更新容量上限或者剩余令牌和流失数量之和
             self._tokens = min(self.capacity, self._tokens + delta)
             self.timestamp = now
         return self._tokens
