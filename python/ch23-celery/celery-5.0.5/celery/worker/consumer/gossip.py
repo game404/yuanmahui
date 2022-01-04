@@ -169,7 +169,9 @@ class Gossip(bootsteps.ConsumerStep):
             workers.pop(worker.hostname, None)
 
     def get_consumers(self, channel):
+        # 定时处理worker激活事件
         self.register_timer()
+        # 消息消费者
         ev = self.Receiver(channel, routing_key='worker.#',
                            queue_ttl=self.heartbeat_interval)
         return [Consumer(
@@ -186,6 +188,7 @@ class Gossip(bootsteps.ConsumerStep):
         if _type.split('.', 1)[0] == 'task':
             return
         try:
+            # 选举事件
             handler = self.event_handlers[_type]
         except KeyError:
             pass
@@ -198,6 +201,7 @@ class Gossip(bootsteps.ConsumerStep):
         if hostname != self.hostname:
             try:
                 _, event = prepare(message.payload)
+                # 其它事件
                 self.update_state(event)
             except (DecodeError, ContentDisallowed, TypeError) as exc:
                 logger.error(exc)

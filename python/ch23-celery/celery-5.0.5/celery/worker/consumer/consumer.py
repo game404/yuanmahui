@@ -192,7 +192,7 @@ class Consumer:
                 self.amqheartbeat = self.app.conf.broker_heartbeat
         else:
             self.amqheartbeat = 0
-
+        # 确定循环
         if not hasattr(self, 'loop'):
             self.loop = loops.asynloop if hub else loops.synloop
 
@@ -583,12 +583,13 @@ class Evloop(bootsteps.StartStopStep):
     Note:
         This is always started last.
     """
-
+    # [2021-11-24 20:08:31,037: DEBUG/MainProcess] | Consumer: Starting event loop
     label = 'event loop'
     last = True
 
     def start(self, c):
         self.patch_all(c)
+        # TODO 谁的loop？
         c.loop(*c.loop_args())
 
     def patch_all(self, c):

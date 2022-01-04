@@ -23,6 +23,7 @@ class Control(bootsteps.StartStopStep):
     def __init__(self, c, **kwargs):
         self.is_green = c.pool is not None and c.pool.is_green
         self.box = (pidbox.gPidbox if self.is_green else pidbox.Pidbox)(c)
+        # 重定向到box
         self.start = self.box.start
         self.stop = self.box.stop
         self.shutdown = self.box.shutdown

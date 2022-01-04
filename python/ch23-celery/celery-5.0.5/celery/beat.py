@@ -256,6 +256,7 @@ class Scheduler:
         entries = {}
         if self.app.conf.result_expires and \
                 not self.app.backend.supports_autoexpire:
+            # 默认的定时器
             if 'celery.backend_cleanup' not in data:
                 entries['celery.backend_cleanup'] = {
                     'task': 'celery.backend_cleanup',
@@ -264,6 +265,7 @@ class Scheduler:
         self.update_from_dict(entries)
 
     def apply_entry(self, entry, producer=None):
+        # 调度到期的任务
         info('Scheduler: Sending due task %s (%s)', entry.name, entry.task)
         try:
             result = self.apply_async(entry, producer=producer, advance=False)
@@ -293,6 +295,7 @@ class Scheduler:
 
     def populate_heap(self, event_t=event_t, heapify=heapq.heapify):
         """Populate the heap with the data contained in the schedule."""
+        # 使用小堆排序所有的定时器
         priority = 5
         self._heap = []
         for entry in self.schedule.values():
@@ -486,7 +489,7 @@ class Scheduler:
 
 class PersistentScheduler(Scheduler):
     """Scheduler backed by :mod:`shelve` database."""
-
+    # 使用的数据存储(dictionary)
     persistence = shelve
     known_suffixes = ('', '.db', '.dat', '.bak', '.dir')
 
@@ -502,6 +505,7 @@ class PersistentScheduler(Scheduler):
                 os.remove(self.schedule_filename + suffix)
 
     def _open_schedule(self):
+        # 创建持久化文件
         return self.persistence.open(self.schedule_filename, writeback=True)
 
     def _destroy_open_corrupted_schedule(self, exc):
@@ -550,6 +554,7 @@ class PersistentScheduler(Scheduler):
 
     def _create_schedule(self):
         for _ in (1, 2):
+            # 2次重试
             try:
                 self._store['entries']
             except KeyError:
@@ -623,11 +628,14 @@ class Service:
             platforms.set_process_title('celery beat')
 
         try:
+            # 时间循环
             while not self._is_shutdown.is_set():
+                # 触发闹钟
                 interval = self.scheduler.tick()
                 if interval and interval > 0.0:
                     debug('beat: Waking up %s.',
                           humanize_seconds(interval, prefix='in '))
+                    # 休眠
                     time.sleep(interval)
                     if self.scheduler.should_sync():
                         self.scheduler._do_sync()
@@ -664,6 +672,7 @@ class Service:
 
 class _Threaded(Thread):
     """Embedded task scheduler using threading."""
+    """寄生在worker时，以线程方式运行"""
 
     def __init__(self, app, **kwargs):
         super().__init__()

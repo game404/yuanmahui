@@ -50,6 +50,7 @@ class App(ParamType):
 
     def convert(self, value, param, ctx):
         try:
+            # 查找app
             return find_app(value)
         except ModuleNotFoundError as e:
             if e.name != value:
@@ -68,6 +69,7 @@ class App(ParamType):
             )
 
 
+# 创建celery.application
 APP = App()
 
 
@@ -121,6 +123,7 @@ APP = App()
 def celery(ctx, app, broker, result_backend, loader, config, workdir,
            no_color, quiet, version):
     """Celery command entrypoint."""
+    """celery主命令"""
     if version:
         click.echo(VERSION_BANNER)
         ctx.exit()
@@ -139,7 +142,7 @@ def celery(ctx, app, broker, result_backend, loader, config, workdir,
         os.environ['CELERY_CONFIG_MODULE'] = config
     ctx.obj = CLIContext(app=app, no_color=no_color, workdir=workdir,
                          quiet=quiet)
-
+    # worker/beat/events三个主要子命令
     # User options
     worker.params.extend(ctx.obj.app.user_options.get('worker', []))
     beat.params.extend(ctx.obj.app.user_options.get('beat', []))

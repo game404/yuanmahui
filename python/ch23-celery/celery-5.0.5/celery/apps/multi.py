@@ -137,6 +137,7 @@ class Node:
 
     def _annotate_with_default_opts(self, options):
         options['-n'] = self.name
+        # pidfile
         self._setdefaultopt(options, ['--pidfile', '-p'], '/var/run/celery/%n.pid')
         self._setdefaultopt(options, ['--logfile', '-f'], '/var/log/celery/%n%I.log')
         self._setdefaultopt(options, ['--executable'], sys.executable)
@@ -194,6 +195,7 @@ class Node:
         return self.send(0)
 
     def send(self, sig, on_error=None):
+        # 给进程发送控制信号
         pid = self.pid
         if pid:
             try:
@@ -212,8 +214,10 @@ class Node:
 
     def _waitexec(self, argv, path=sys.executable, env=None,
                   on_spawn=None, on_signalled=None, on_failure=None):
+        # 生成启动命令
         argstr = self.prepare_argv(argv, path)
         maybe_call(on_spawn, self, argstr=' '.join(argstr), env=env)
+        # 启动进程
         pipe = Popen(argstr, env=env)
         return self.handle_process_exit(
             pipe.wait(),

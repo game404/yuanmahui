@@ -5,9 +5,9 @@ from celery import Celery
 app = Celery(
     'myapp',
     broker='redis://localhost:6379/0',
-    result_backend='redis://localhost:6379/0'
+    result_backend='redis://localhost:6379/0',
     # ## add result backend here if needed.
-    # backend='rpc'
+    backend='rpc'
 )
 
 

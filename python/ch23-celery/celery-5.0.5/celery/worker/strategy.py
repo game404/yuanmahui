@@ -140,7 +140,7 @@ def default(task, app, consumer,
                                                                message.payload)
             else:
                 body, headers, decoded, utc = proto1_to_proto2(message, body)
-
+        # 收到任务消息
         req = Req(
             message,
             on_ack=ack, on_reject=reject, app=app, hostname=hostname,

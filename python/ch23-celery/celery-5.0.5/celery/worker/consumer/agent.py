@@ -13,6 +13,7 @@ class Agent(bootsteps.StartStopStep):
     requires = (Connection,)
 
     def __init__(self, c, **kwargs):
+        # TODO worker_agent
         self.agent_cls = self.enabled = c.app.conf.worker_agent
         super().__init__(c, **kwargs)
 

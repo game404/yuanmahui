@@ -18,6 +18,7 @@ class Connection(bootsteps.StartStopStep):
         super().__init__(c, **kwargs)
 
     def start(self, c):
+        # 创建连接
         c.connection = c.connect()
         info('Connected to %s', c.connection.as_uri())
 
@@ -26,11 +27,14 @@ class Connection(bootsteps.StartStopStep):
         # that the green pidbox thread exits.
         connection, c.connection = c.connection, None
         if connection:
+            # 关闭连接
             ignore_errors(connection, connection.close)
 
     def info(self, c):
         params = 'N/A'
         if c.connection:
+            # 打印连接信息
             params = c.connection.info()
+            # 脱敏
             params.pop('password', None)  # don't send password.
         return {'broker': params}

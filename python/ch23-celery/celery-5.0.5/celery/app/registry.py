@@ -11,6 +11,7 @@ __all__ = ('TaskRegistry',)
 
 class TaskRegistry(dict):
     """Map of registered tasks."""
+    """字典形态的任务注册中心"""
 
     NotRegistered = NotRegistered
 
@@ -23,12 +24,15 @@ class TaskRegistry(dict):
         The task will be automatically instantiated if not already an
         instance. Name must be configured prior to registration.
         """
+        # 提供一种注册方法
         if task.name is None:
             raise InvalidTaskError(
                 'Task class {!r} must specify .name attribute'.format(
                     type(task).__name__))
+        # 是实例
         task = inspect.isclass(task) and task() or task
         add_autoretry_behaviour(task)
+        # 作为自动，可以直接增加
         self[task.name] = task
 
     def unregister(self, name):

@@ -51,10 +51,11 @@ def add_autoretry_behaviour(task, **options):
                     retry_kwargs['max_retries'] = getattr(task,
                                                           'override_max_retries',
                                                           task.max_retries)
+                # 重试
                 ret = task.retry(exc=exc, **retry_kwargs)
                 # Stop propagation
                 if hasattr(task, 'override_max_retries'):
                     delattr(task, 'override_max_retries')
                 raise ret
-
+        # 增加装饰器
         task._orig_run, task.run = task.run, run

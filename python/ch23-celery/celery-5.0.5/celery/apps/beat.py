@@ -86,6 +86,7 @@ class Beat:
     def start_scheduler(self):
         if self.pidfile:
             platforms.create_pidlock(self.pidfile)
+        # 创建调度服务
         service = self.Service(
             app=self.app,
             max_interval=self.max_interval,

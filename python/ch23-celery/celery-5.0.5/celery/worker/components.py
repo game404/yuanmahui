@@ -148,6 +148,7 @@ class Pool(bootsteps.StartStopStep):
             if w.pool_putlocks and w.pool_cls.uses_semaphore:
                 w.process_task = w._process_task_sem
         allow_restart = w.pool_restarts
+        # 启动concurrency模型
         pool = w.pool = self.instantiate(
             w.pool_cls, w.min_concurrency,
             initargs=(w.app, w.hostname),

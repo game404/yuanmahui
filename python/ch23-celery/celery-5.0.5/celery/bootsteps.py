@@ -107,6 +107,7 @@ class Blueprint:
         self.steps = {}
 
     def start(self, parent):
+        # 启动蓝图
         self.state = RUN
         if self.on_start:
             self.on_start()
@@ -117,6 +118,7 @@ class Blueprint:
             logger.debug('^-- substep ok')
 
     def human_state(self):
+        # 状态机表意
         return self.state_to_name[self.state or 0]
 
     def info(self, parent):
@@ -142,6 +144,7 @@ class Blueprint:
             if step:
                 fun = getattr(step, method, None)
                 if fun is not None:
+                    # [2021 - 11 - 24 20: 0 8: 31, 037: DEBUG / MainProcess] | Worker: Hub.register Pool...
                     self._debug('%s %s...',
                                 description.capitalize(), step.alias)
                     try:
@@ -196,6 +199,7 @@ class Blueprint:
         For :class:`StartStopStep` the services created
         will also be added to the objects ``steps`` attribute.
         """
+        # 应用蓝图
         self._debug('Preparing bootsteps.')
         order = self.order = []
         steps = self.steps = self.claim_steps()
@@ -208,6 +212,7 @@ class Blueprint:
         self._debug('New boot order: {%s}',
                     ', '.join(s.alias for s in self.order))
         for step in order:
+            # 隐式的创建step
             step.include(parent)
         return self
 
@@ -219,12 +224,15 @@ class Blueprint:
         return self.steps[name]
 
     def _find_last(self):
+        # 查找steps的尾
         return next((C for C in self.steps.values() if C.last), None)
 
     def _firstpass(self, steps):
+        # 查找依赖关系
         for step in steps.values():
             step.requires = [symbol_by_name(dep) for dep in step.requires]
         stream = deque(step.requires for step in steps.values())
+        # 广度优先的遍历
         while stream:
             for node in stream.popleft():
                 node = symbol_by_name(node)
@@ -272,6 +280,7 @@ class StepType(type):
     def __new__(cls, name, bases, attrs):
         module = attrs.get('__module__')
         qname = f'{module}.{name}' if module else name
+        # 增加qualname属性
         attrs.update(
             __qualname__=qname,
             name=attrs.get('name') or qname,
@@ -336,6 +345,7 @@ class Step(metaclass=StepType):
         return False, None
 
     def include(self, parent):
+        # 根据配置决定是否创建step对象
         return self._should_include(parent)[0]
 
     def create(self, parent):
@@ -393,6 +403,7 @@ class ConsumerStep(StartStopStep):
         raise NotImplementedError('missing get_consumers')
 
     def start(self, c):
+        # 消息者消费channel
         channel = c.connection.channel()
         self.consumers = self.get_consumers(channel)
         for consumer in self.consumers or []:

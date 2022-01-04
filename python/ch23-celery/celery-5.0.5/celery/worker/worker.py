@@ -130,12 +130,14 @@ class WorkController:
         self.pool_cls = _concurrency.get_implementation(self.pool_cls)
         self.steps = []
         self.on_init_blueprint()
+        # 创建启动蓝图
         self.blueprint = self.Blueprint(
             steps=self.app.steps['worker'],
             on_start=self.on_start,
             on_close=self.on_close,
             on_stopped=self.on_stopped,
         )
+        # 创建蓝图的steps
         self.blueprint.apply(self, **kwargs)
 
     def on_init_blueprint(self):
@@ -376,6 +378,7 @@ class WorkController:
         self.concurrency = either('worker_concurrency', concurrency)
         self.task_events = either('worker_send_task_events', task_events)
         self.pool_cls = either('worker_pool', pool, pool_cls)
+        # 次级蓝图
         self.consumer_cls = either('worker_consumer', consumer_cls)
         self.timer_cls = either('worker_timer', timer_cls)
         self.timer_precision = either(

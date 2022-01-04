@@ -196,14 +196,17 @@ class Celery:
     steps = None
 
     builtin_fixups = BUILTIN_FIXUPS
-
+    # 协议实现
     amqp_cls = 'celery.app.amqp:AMQP'
     backend_cls = None
+    # 事件实现
     events_cls = 'celery.app.events:Events'
     loader_cls = None
     log_cls = 'celery.app.log:Logging'
     control_cls = 'celery.app.control:Control'
+    # 任务
     task_cls = 'celery.app.task:Task'
+    # 任务中心
     registry_cls = 'celery.app.registry:TaskRegistry'
 
     #: Thread local storage.
@@ -257,7 +260,9 @@ class Celery:
 
         self.finalized = False
         self._finalize_mutex = threading.Lock()
+        # 待执行的task
         self._pending = deque()
+        # 所有任务
         self._tasks = tasks
         if not isinstance(self._tasks, TaskRegistry):
             self._tasks = self.registry_cls(self._tasks or {})
@@ -323,6 +328,7 @@ class Celery:
 
     def set_current(self):
         """Make this the current app for this thread."""
+        # 类似werkzeug的local
         _set_current_app(self)
 
     def set_default(self):
@@ -350,6 +356,7 @@ class Celery:
         _deregister_app(self)
 
     def start(self, argv=None):
+        """启动"""
         from celery.bin.celery import celery
 
         celery.params[0].default = self
@@ -414,7 +421,7 @@ class Celery:
 
         def inner_create_task_cls(shared=True, filter=None, lazy=True, **opts):
             _filt = filter
-
+            # 装饰器实现
             def _create_task_cls(fun):
                 if shared:
                     def cons(app):
@@ -425,6 +432,7 @@ class Celery:
                     ret = self._task_from_fun(fun, **opts)
                 else:
                     # return a proxy object that evaluates on first use
+                    # 使用Promise
                     ret = PromiseProxy(self._task_from_fun, (fun,), opts,
                                        __doc__=fun.__doc__)
                     self._pending.append(ret)
@@ -452,6 +460,7 @@ class Celery:
 
         if name not in self._tasks:
             run = fun if bind else staticmethod(fun)
+            # 构造task类
             task = type(fun.__name__, (base,), dict({
                 'app': self,
                 'name': name,
@@ -468,6 +477,7 @@ class Celery:
                 task.__qualname__ = fun.__qualname__
             except AttributeError:
                 pass
+            # 增加task
             self._tasks[task.name] = task
             task.bind(self)  # connects task to this app
             add_autoretry_behaviour(task, **options)
@@ -1102,6 +1112,7 @@ class Celery:
         See Also:
             :class:`~@Worker`.
         """
+        # 创建worker
         return self.subclass_with_self('celery.apps.worker:Worker')
 
     @cached_property

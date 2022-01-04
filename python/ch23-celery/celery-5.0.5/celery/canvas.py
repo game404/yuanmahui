@@ -153,8 +153,10 @@ class Signature(dict):
         else:
             # Also supports using task class/instance instead of string name.
             try:
+                # task
                 task_name = task.name
             except AttributeError:
+                # 字符串
                 task_name = task
             else:
                 self._type = task
@@ -520,6 +522,7 @@ class Signature(dict):
         try:
             return self.type.apply_async
         except KeyError:
+            # 使用app的send_task发送任务
             return _partial(self.app.send_task, self['task'])
 
     id = getitem_property('options.task_id', 'Task UUID')

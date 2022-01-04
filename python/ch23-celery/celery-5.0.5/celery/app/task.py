@@ -60,6 +60,7 @@ def _reprtask(task, fmt=None, flags=None):
 
 class Context:
     """Task request variables (Task.request)."""
+    "任务上下文，简单对象"
 
     logfile = None
     loglevel = None

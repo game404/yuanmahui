@@ -26,6 +26,7 @@ class Heart(bootsteps.StartStopStep):
         super().__init__(c, **kwargs)
 
     def start(self, c):
+        # 启动心跳
         c.heart = heartbeat.Heart(
             c.timer, c.event_dispatcher, self.heartbeat_interval,
         )
